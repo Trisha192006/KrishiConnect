@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (resendButton) {
 
-        let seconds = 30;
+        let seconds = 60;
 
         resendButton.disabled = true;
 
@@ -170,5 +170,49 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
+
+});
+
+
+/* =========================
+   FORM SUBMISSION PROTECTION
+========================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(
+        'form[method="POST"], form[method="post"]'
+    ).forEach(form => {
+
+        form.addEventListener("submit", function (event) {
+
+            if (form.dataset.submitting === "true") {
+                event.preventDefault();
+                return;
+            }
+
+            form.dataset.submitting = "true";
+
+            const button = event.submitter ||
+                form.querySelector('button[type="submit"]');
+
+            if (button) {
+
+                button.disabled = true;
+                button.textContent = "Please wait...";
+
+            }
+
+        });
+
+    });
+
+    window.addEventListener("pageshow", function (event) {
+
+        if (event.persisted) {
+            window.location.reload();
+        }
+
+    });
 
 });

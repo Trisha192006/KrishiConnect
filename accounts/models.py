@@ -74,3 +74,30 @@ class OTPVerification(models.Model):
 
     def __str__(self):
         return self.phone_number
+
+class Profile(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        editable=False
+    )
+
+    name = models.CharField(max_length=100)
+
+    village = models.CharField(max_length=100)
+
+    district = models.CharField(max_length=100)
+
+    state = models.CharField(max_length=100)
+
+    pincode = models.CharField(max_length=6)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "profiles"
+
+    def __str__(self):
+        return self.name

@@ -789,3 +789,9 @@ input:focus-visible {
     }
 
 }
+
+.otp-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}

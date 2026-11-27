@@ -144,12 +144,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 
-# OTP Configuration
 
-OTP_EXPIRY_SECONDS = 300
-OTP_RESEND_SECONDS = 30
-OTP_MAX_ATTEMPTS = 5
+# Supabase Auth Configuration
 
-OTP_DEVELOPMENT_MODE = (
-    os.getenv("OTP_DEVELOPMENT_MODE", "False").lower() == "true"
-)
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_PUBLISHABLE_KEY = os.environ["SUPABASE_PUBLISHABLE_KEY"]
+
+# Server-side session configuration
+
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = not DEBUG
+
+CSRF_COOKIE_SECURE = not DEBUG

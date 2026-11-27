@@ -1,19 +1,37 @@
 
 import re
-import time
 
-from django.db import IntegrityError, transaction
-from .forms import RegistrationForm
-from django.conf import settings
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
+from django.db import IntegrityError, transaction
 
-from .models import User
-from .otp_service import generate_otp, verify_otp
+from supabase_auth.errors import(
+    AuthApiError,
+    AuthRetryableError,
+)
+from httpx import RequestError
+
+from .models import Profile
+from .forms import RegistrationForm
+
+from .auth_service import (
+    send_otp,
+    verify_phone_otp,
+)
+
+from .auth_session import (
+    save_auth_session,
+    clear_auth_session,
+    get_authenticated_client,
+)
 
 
+# =========================
+# LOGIN AND SEND OTP
+# =========================
+
+@never_cache
 def login_view(request):
 
     if request.method == "POST":
@@ -35,19 +53,30 @@ def login_view(request):
         if role not in ["farmer", "vendor"]:
             role = "farmer"
 
-        success, message = generate_otp(phone_number)
+        try:
 
-        if not success:
+            send_otp(phone_number)
+
+        except (AuthApiError, AuthRetryableError, RequestError, ValueError):
 
             return render(
                 request,
                 "accounts/login.html",
-                {"error": message}
+                {
+                    "error": (
+                        "Unable to send OTP. "
+                        "Please wait and try again."
+                    )
+                }
             )
 
         request.session.cycle_key()
 
+        clear_auth_session(request)
+
         request.session.pop("verified_phone", None)
+        request.session.pop("verified_at", None)
+
         request.session["otp_phone"] = phone_number
         request.session["selected_role"] = role
 
@@ -56,6 +85,11 @@ def login_view(request):
     return render(request, "accounts/login.html")
 
 
+# =========================
+# VERIFY OTP
+# =========================
+
+@never_cache
 def verify_otp_view(request):
 
     phone_number = request.session.get("otp_phone")
@@ -65,18 +99,19 @@ def verify_otp_view(request):
 
     context = {
         "phone_number": phone_number,
-        "development_mode": (
-            settings.DEBUG and settings.OTP_DEVELOPMENT_MODE
-        ),
     }
 
     if request.method == "POST":
 
-        entered_otp = request.POST.get("otp", "").strip()
+        entered_otp = request.POST.get(
+            "otp", ""
+        ).strip()
 
         if not re.fullmatch(r"[0-9]{6}", entered_otp):
 
-            context["error"] = "Enter a valid six-digit OTP."
+            context["error"] = (
+                "Enter a valid six-digit OTP."
+            )
 
             return render(
                 request,
@@ -84,14 +119,19 @@ def verify_otp_view(request):
                 context
             )
 
-        success, message = verify_otp(
-            phone_number,
-            entered_otp
-        )
+        try:
 
-        if not success:
+            response = verify_phone_otp(
+                phone_number,
+                entered_otp
+            )
 
-            context["error"] = message
+        except (AuthApiError, AuthRetryableError, RequestError, ValueError):
+
+            context["error"] = (
+                "Invalid or expired OTP. "
+                "Please try again."
+            )
 
             return render(
                 request,
@@ -99,47 +139,38 @@ def verify_otp_view(request):
                 context
             )
 
-        request.session.pop("otp_phone", None)
+        if not response.user or not response.session:
+
+            context["error"] = (
+                "Authentication could not be completed."
+            )
+
+            return render(
+                request,
+                "accounts/verify_otp.html",
+                context
+            )
+
         request.session.cycle_key()
 
-        user = User.objects.filter(
-            phone_number=phone_number
-        ).first()
+        save_auth_session(
+            request,
+            response.session
+        )
 
-        if user:
+        request.session.pop("otp_phone", None)
 
-            # Keep administrator authentication separate
-            if user.is_staff or user.is_superuser:
-                context["error"] = (
-                    "Administrator accounts must use the admin login."
-                )
-                return render(
-                    request,
-                    "accounts/verify_otp.html",
-                    context
-                )
+        # Check application profile, not legacy User
 
-            if not user.is_active:
-                context["error"] = "This account is inactive."
-                return render(
-                    request,
-                    "accounts/verify_otp.html",
-                    context
-                )
+        profile_exists = Profile.objects.filter(
+            id=response.user.id
+        ).exists()
 
-            user.is_phone_verified = True
-            user.save(update_fields=["is_phone_verified"])
+        if profile_exists:
 
-            login(
-                request,
-                user,
-                backend="django.contrib.auth.backends.ModelBackend"
-            )
+            request.session.pop("selected_role", None)
 
             return redirect("accounts:dashboard")
-
-        request.session["verified_phone"] = phone_number
-        request.session["verified_at"] = int(time.time())
 
         return redirect("accounts:signup")
 
@@ -150,7 +181,12 @@ def verify_otp_view(request):
     )
 
 
+# =========================
+# RESEND OTP
+# =========================
+
 @require_POST
+@never_cache
 def resend_otp_view(request):
 
     phone_number = request.session.get("otp_phone")
@@ -158,37 +194,59 @@ def resend_otp_view(request):
     if not phone_number:
         return redirect("accounts:login")
 
-    success, message = generate_otp(phone_number)
+    context = {
+        "phone_number": phone_number,
+    }
+
+    try:
+
+        send_otp(phone_number)
+
+        context["success"] = (
+            "OTP requested successfully."
+        )
+
+    except (AuthApiError, AuthRetryableError, RequestError, ValueError):
+
+        context["error"] = (
+            "Unable to resend OTP. "
+            "Please wait and try again."
+        )
 
     return render(
         request,
         "accounts/verify_otp.html",
-        {
-            "phone_number": phone_number,
-            "success": message if success else "",
-            "error": message if not success else "",
-            "development_mode": (
-                settings.DEBUG and settings.OTP_DEVELOPMENT_MODE
-            ),
-        }
+        context
     )
 
 
+# =========================
+# COMPLETE PROFILE
+# =========================
 
+@never_cache
 def signup_view(request):
 
-    phone_number = request.session.get("verified_phone")
-    verified_at = request.session.get("verified_at", 0)
+    supabase, auth_user = (
+        get_authenticated_client(request)
+    )
 
-    # Registration session expires after 15 minutes
-
-    if not phone_number or time.time() - verified_at > 900:
-
-        request.session.pop("verified_phone", None)
-        request.session.pop("verified_at", None)
-
+    if not auth_user:
         return redirect("accounts:login")
 
+    if Profile.objects.filter(id=auth_user.id).exists():
+        return redirect("accounts:dashboard")
+
+    phone_number = (
+        auth_user.phone or ""
+    ).lstrip("+")
+
+    if phone_number.startswith("91"):
+        phone_number = phone_number[2:]
+
+    context = {
+        "phone_number": phone_number,
+    }
 
     if request.method == "POST":
 
@@ -200,43 +258,30 @@ def signup_view(request):
 
                 with transaction.atomic():
 
-                    user = form.save(commit=False)
+                    profile = form.save(commit=False)
 
-                    user.phone_number = phone_number
-                    user.is_phone_verified = True
-                    user.is_staff = False
-                    user.is_superuser = False
-                    user.is_active = True
+                    # UUID comes from verified Supabase identity
 
-                    user.set_unusable_password()
+                    profile.id = auth_user.id
 
-                    user.save()
+                    profile.save(force_insert=True)
 
             except IntegrityError:
+
+                context["form"] = form
+
+                context["error"] = (
+                    "Profile could not be created. "
+                    "Please try again."
+                )
 
                 return render(
                     request,
                     "accounts/signup.html",
-                    {
-                        "form": form,
-                        "phone_number": phone_number,
-                        "error": "Registration could not be completed. Please try logging in again.",
-                    }
+                    context
                 )
 
-            # Clear temporary verification data
-
-            request.session.pop("verified_phone", None)
-            request.session.pop("verified_at", None)
             request.session.pop("selected_role", None)
-
-            # Automatically log in the registered user
-
-            login(
-                request,
-                user,
-                backend="django.contrib.auth.backends.ModelBackend"
-            )
 
             return redirect("accounts:dashboard")
 
@@ -244,24 +289,106 @@ def signup_view(request):
 
         form = RegistrationForm()
 
+    context["form"] = form
 
     return render(
         request,
         "accounts/signup.html",
+        context
+    )
+
+
+# =========================
+# PROTECTED DASHBOARD
+# =========================
+
+@never_cache
+def dashboard_view(request):
+
+    supabase, auth_user = (
+        get_authenticated_client(request)
+    )
+
+    if not auth_user:
+        return redirect("accounts:login")
+
+    profile = Profile.objects.filter(
+        id=auth_user.id
+    ).first()
+
+    if not profile:
+        return redirect("accounts:signup")
+
+    phone_number = (
+        auth_user.phone or ""
+    ).lstrip("+")
+
+    return render(
+        request,
+        "accounts/dashboard.html",
         {
-            "phone_number": phone_number,
-            "form": form,
+            "profile": profile,
+            "phone_number": "+" + phone_number,
         }
     )
 
 
-
-@login_required(login_url="accounts:login")
-def dashboard_view(request):
-    return render(request, "accounts/dashboard.html")
-
+# =========================
+# LOGOUT
+# =========================
 
 @require_POST
+@never_cache
 def logout_view(request):
-    logout(request)
+
+    supabase, auth_user = (
+        get_authenticated_client(request)
+    )
+
+    if supabase and auth_user:
+
+        try:
+
+            supabase.auth.sign_out({
+                "scope": "local"
+            })
+
+        except (AuthApiError,AuthRetryableError, RequestError):
+
+            return render(
+                request,
+                "accounts/dashboard.html",
+                {
+                    "profile": Profile.objects.filter(
+                        id=auth_user.id
+                    ).first(),
+                    "phone_number": auth_user.phone,
+                    "error": (
+                        "Logout could not be completed. "
+                        "Please try again."
+                    ),
+                },
+                status=503
+            )
+
+    elif request.session.get("supabase_refresh_token"):
+
+        return render(
+            request,
+            "accounts/login.html",
+            {
+                "error": (
+                    "Unable to contact authentication service. "
+                    "Please retry logout."
+                )
+            },
+            status=503
+        )
+
+    clear_auth_session(request)
+
+    request.session.pop("otp_phone", None)
+    request.session.pop("selected_role", None)
+    request.session.cycle_key()
+
     return redirect("accounts:login")
