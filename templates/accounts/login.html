@@ -1,0 +1,124 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login | KrishiConnect{% endblock %}
+
+{% block content %}
+
+<main class="auth-container">
+
+    <!-- Left Branding Section -->
+    <section class="brand-section">
+
+        <h1>KrishiConnect</h1>
+
+        <p class="tagline">
+            Connecting Rural India, Farmer to Farmer
+        </p>
+
+        <div class="brand-features">
+
+            <div class="feature">
+                <span class="feature-icon">🌾</span>
+                <span>Verified Equipment,<br>Livestock & Seeds</span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Right Login Section -->
+    <section class="login-card">
+
+        <div class="language-selector">
+            <button type="button" data-lang="en">English</button>
+            <span>|</span>
+            <button type="button" data-lang="hi">हिंदी</button>
+        </div>
+
+        <div class="login-heading">
+
+            <h2>Welcome / स्वागत है</h2>
+
+            <p id="login-subtitle">
+                Secure OTP Login to KrishiConnect
+            </p>
+
+        </div>
+
+        <!-- User Type Selection -->
+        <div class="role-selector">
+
+            <button type="button"
+                    class="role-btn active"
+                    data-role="farmer"
+                    aria-pressed="true">
+
+                🌾 <span id="farmer-label">Farmer / Buyer</span>
+
+            </button>
+
+            <button type="button"
+                    class="role-btn"
+                    data-role="vendor"
+                    aria-pressed="false">
+
+                🏪 <span id="vendor-label">Local Vendor</span>
+
+            </button>
+
+        </div>
+
+        <!-- Login Form -->
+        <form class="login-form" id="login-form" method="POST">
+
+            {% csrf_token %}
+
+            <input type="hidden"
+                   name="role"
+                   id="selected-role"
+                   value="farmer">
+
+            <label for="phone-number" id="phone-label">
+                Mobile Number / मोबाइल नंबर
+            </label>
+
+            <div class="phone-input">
+
+                <span class="country-code">
+                    🇮🇳 +91
+                </span>
+
+                <input type="tel"
+                       id="phone-number"
+                       name="phone_number"
+                       placeholder="98765 43210"
+                       maxlength="10"
+                       pattern="[6-9][0-9]{9}"
+                       inputmode="numeric"
+                       autocomplete="tel-national"
+                       required>
+
+            </div>
+
+            <button type="submit" class="otp-button">
+                <span id="otp-label">
+                    Get OTP / ओटीपी प्राप्त करें
+                </span>
+                <span>→</span>
+            </button>
+
+            {% if error %}
+                <p class="error-message" role="alert">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+        </form>
+
+    </section>
+
+</main>
+
+{% endblock %}

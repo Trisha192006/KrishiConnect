@@ -1,0 +1,212 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Registration | KrishiConnect{% endblock %}
+
+{% block content %}
+
+<main class="auth-container">
+
+    <!-- Branding Section -->
+
+    <section class="brand-section">
+
+        <h1>KrishiConnect</h1>
+
+        <p class="tagline">
+            Connecting Rural India, Farmer to Farmer
+        </p>
+
+        <div class="brand-features">
+
+            <div class="feature">
+                <span class="feature-icon">🌾</span>
+                <span>
+                    Verified Equipment,<br>
+                    Livestock & Seeds
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Registration Card -->
+
+    <section class="login-card signup-card">
+
+        <div class="login-heading">
+
+            <h2>Complete Your Profile</h2>
+
+            <p>अपनी प्रोफ़ाइल पूरी करें</p>
+
+        </div>
+
+        <form method="POST"
+              class="login-form signup-form">
+
+            {% csrf_token %}
+
+            <!-- Full Name -->
+
+            <div class="form-group">
+
+                <label for="name">
+                    Full Name / पूरा नाम
+                </label>
+
+                <input type="text"
+                       id="name"
+                       name="name"
+                       value="{{ form.name.value|default_if_none:'' }}"
+                       placeholder="Enter your full name"
+                       maxlength="100"
+                       required>
+
+            </div>
+
+
+            <!-- Verified Mobile Number -->
+
+            <div class="form-group">
+
+                <label>
+                    Mobile Number / मोबाइल नंबर
+                </label>
+
+                <div class="verified-phone">
+
+                    <span>+91 {{ phone_number }}</span>
+
+                    <span class="verified-label">
+                        ✓ Verified
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Village -->
+
+            <div class="form-group">
+
+                <label for="village">
+                    Village / Town
+                </label>
+
+                <input type="text"
+                       id="village"
+                       name="village"
+                       value="{{ form.village.value|default_if_none:'' }}"
+                       placeholder="Enter village or town"
+                       maxlength="100"
+                       required>
+
+            </div>
+
+
+            <!-- District and State -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="district">
+                        District
+                    </label>
+
+                    <input type="text"
+                           id="district"
+                           name="district"
+                           value="{{ form.district.value|default_if_none:'' }}"
+                           placeholder="District"
+                           maxlength="100"
+                           required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="state">
+                        State
+                    </label>
+
+                    <input type="text"
+                           id="state"
+                           name="state"
+                           value="{{ form.state.value|default_if_none:'' }}"
+                           placeholder="State"
+                           maxlength="100"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- Pincode -->
+
+            <div class="form-group">
+
+                <label for="pincode">
+                    Pincode
+                </label>
+
+                <input type="text"
+                       id="pincode"
+                       name="pincode"
+                       value="{{ form.pincode.value|default_if_none:'' }}"
+                       placeholder="Enter six-digit pincode"
+                       maxlength="6"
+                       pattern="[1-9][0-9]{5}"
+                       inputmode="numeric"
+                       required>
+
+            </div>
+
+
+            <!-- Validation Errors -->
+
+            {% if form.errors %}
+
+                <div class="error-message">
+
+                    {% for field in form %}
+                        {% for error in field.errors %}
+
+                            <p>{{ field.label }}: {{ error }}</p>
+
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+
+            <!-- Registration Button -->
+
+            <button type="submit" class="otp-button">
+
+                Complete Registration →
+
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+{% endblock %}

@@ -1,0 +1,88 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | KrishiConnect{% endblock %}
+
+{% block content %}
+
+<main class="auth-container">
+
+    <section class="brand-section">
+
+        <h1>KrishiConnect</h1>
+
+        <p class="tagline">
+            Connecting Rural India, Farmer to Farmer
+        </p>
+
+    </section>
+
+    <section class="login-card">
+
+        <div class="login-heading">
+
+            <h2>Welcome, {{ profile.name }}</h2>
+
+            <p>You have successfully logged in.</p>
+
+        </div>
+
+        <div class="login-form">
+
+            <p>
+                <strong>Mobile Number:</strong>
+                {{ phone_number }}
+            </p>
+
+            <br>
+
+            <p>
+                <strong>Village:</strong>
+                {{ profile.village }}
+            </p>
+
+            <br>
+
+            <p>
+                <strong>District:</strong>
+                {{ profile.district }}
+            </p>
+
+            <br>
+
+            <p>
+                <strong>State:</strong>
+                {{ profile.state }}
+            </p>
+
+            <br>
+
+            <p>
+                <strong>Pincode:</strong>
+                {{ profile.pincode }}
+            </p>
+
+            {% if error %}
+                <p class="error-message" role="alert">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+            <form method="POST"
+                  action="{% url 'accounts:logout' %}">
+
+                {% csrf_token %}
+
+                <button type="submit" class="otp-button">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+{% endblock %}

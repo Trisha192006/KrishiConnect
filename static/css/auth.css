@@ -1,0 +1,797 @@
+
+/* =========================
+   GLOBAL STYLES
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-green: #245638;
+    --button-green: #218b35;
+    --dark-green: #173e29;
+    --cream: #faf7f0;
+    --gold: #d5af62;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #262626;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+}
+
+
+/* =========================
+   BACKGROUND AND LAYOUT
+========================= */
+
+.auth-container {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    background:
+        linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.60),
+            rgba(0, 0, 0, 0.08)
+        ),
+        url("../images/farm-background.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+
+    padding: 5vh 4vw 5vh 7vw;
+    gap: 40px;
+}
+
+
+/* =========================
+   BRANDING SECTION
+========================= */
+
+.brand-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    padding-bottom: 10px;
+    color: #ffe1a5;
+}
+
+.brand-section h1 {
+    font-family: Georgia, serif;
+    font-size: clamp(40px, 5vw, 76px);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.tagline {
+    font-size: clamp(17px, 1.8vw, 26px);
+    line-height: 1.5;
+}
+
+.brand-features {
+    display: flex;
+    gap: 40px;
+    margin-top: 25px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.feature-icon {
+    font-size: 27px;
+}
+
+
+/* =========================
+   LOGIN CARD
+========================= */
+
+.login-card {
+    width: 100%;
+    max-width: 590px;
+
+    background: rgba(250, 247, 240, 0.97);
+    border-radius: 26px;
+
+    padding: 35px 55px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    position: relative;
+}
+
+
+/* =========================
+   LANGUAGE SELECTOR
+========================= */
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    gap: 10px;
+
+    padding: 10px 16px;
+    margin-bottom: 45px;
+
+    background: #f4eee3;
+    border: 1px solid #e5d9c6;
+    border-radius: 30px;
+}
+
+.language-selector button {
+    border: none;
+    background: transparent;
+    color: #292929;
+    font-size: 15px;
+}
+
+.language-selector span {
+    color: #b9ad9c;
+}
+
+
+/* =========================
+   LOGIN HEADING
+========================= */
+
+.login-heading {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-heading h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(27px, 3vw, 42px);
+    color: var(--dark-green);
+    margin-bottom: 12px;
+}
+
+.login-heading p {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   ROLE SELECTION
+========================= */
+
+.role-selector {
+    display: flex;
+    gap: 5px;
+
+    background: #e8dfd1;
+    border-radius: 35px;
+
+    padding: 4px;
+    margin-bottom: 25px;
+}
+
+.role-btn {
+    flex: 1;
+    padding: 14px 8px;
+
+    border: 2px solid transparent;
+    border-radius: 30px;
+
+    background: #faf7f0;
+    color: #262626;
+
+    font-size: 15px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.role-btn.active {
+    background: var(--primary-green);
+    color: #ffffff;
+    border-color: var(--gold);
+}
+
+
+/* =========================
+   LOGIN FORM
+========================= */
+
+.login-form {
+    background: #ffffff;
+
+    padding: 26px;
+    border-radius: 18px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.phone-input {
+    display: flex;
+    align-items: center;
+
+    border: 1px solid #d6d3cd;
+    border-radius: 10px;
+    background: #f7f6f3;
+
+    overflow: hidden;
+}
+
+.country-code {
+    padding: 14px 12px;
+    border-right: 1px solid #dedbd5;
+    white-space: nowrap;
+}
+
+.phone-input input {
+    width: 100%;
+    min-width: 0;
+
+    border: none;
+    background: transparent;
+
+    padding: 15px 12px;
+    font-size: 17px;
+    color: #222222;
+}
+
+.phone-input:focus-within {
+    outline: 2px solid var(--primary-green);
+}
+
+.phone-input input:focus {
+    outline: none;
+}
+
+.phone-input input::placeholder {
+    color: #888888;
+}
+
+
+/* =========================
+   GET OTP BUTTON
+========================= */
+
+.otp-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    padding: 17px 12px;
+    margin-top: 25px;
+
+    border: none;
+    border-radius: 35px;
+
+    background: linear-gradient(
+        180deg,
+        #2ca541,
+        #217c32
+    );
+
+    color: #ffffff;
+    font-size: 17px;
+
+    box-shadow: 0 7px 15px rgba(33, 139, 53, 0.25);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.otp-button:hover {
+    background: #1b722b;
+    transform: translateY(-2px);
+}
+
+.otp-button:active {
+    transform: translateY(0);
+}
+
+#form-message {
+    color: var(--dark-green);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#form-message:not(:empty) {
+    margin-top: 15px;
+}
+
+
+/* =========================
+   TRUST SECTION
+========================= */
+
+.trust-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-top: 35px;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.trust-item span {
+    font-size: 25px;
+}
+
+
+/* =========================
+   TABLET AND MOBILE
+========================= */
+
+@media (max-width: 1000px) {
+
+    .auth-container {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px 20px;
+    }
+
+    .brand-section {
+        flex: initial;
+        text-align: center;
+        align-items: center;
+    }
+
+    .brand-features {
+        display: none;
+    }
+
+    .login-card {
+        max-width: 540px;
+        padding: 30px;
+    }
+
+    .language-selector {
+        margin-bottom: 25px;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .auth-container {
+        padding: 25px 14px;
+        gap: 25px;
+    }
+
+    .brand-section h1 {
+        font-size: 37px;
+    }
+
+    .tagline {
+        font-size: 14px;
+    }
+
+    .login-card {
+        padding: 22px 18px;
+        border-radius: 20px;
+    }
+
+    .login-heading h2 {
+        font-size: 27px;
+    }
+
+    .login-heading p {
+        font-size: 14px;
+    }
+
+    .login-form {
+        padding: 18px 14px;
+    }
+
+    .role-btn {
+        font-size: 13px;
+        padding: 12px 5px;
+    }
+
+    .phone-input input {
+        font-size: 16px;
+    }
+
+    .otp-button {
+        font-size: 14px;
+    }
+
+    .trust-section {
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .trust-item {
+        font-size: 11px;
+    }
+
+}
+
+
+/* =========================
+   UPDATED LOGIN UI
+========================= */
+
+.auth-container {
+    align-items: center;
+    padding: 4vh 6vw;
+    gap: 30px;
+}
+
+.brand-section {
+    align-self: stretch;
+}
+
+.login-card {
+    max-width: 470px;
+    background: rgba(250, 247, 240, 0.55);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    padding: 30px 35px;
+    border-radius: 22px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+}
+
+.language-selector {
+    margin-bottom: 30px;
+    padding: 8px 14px;
+}
+
+.login-heading {
+    margin-bottom: 24px;
+}
+
+.login-heading h2 {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.login-heading p {
+    font-size: 16px;
+}
+
+.role-selector {
+    margin-bottom: 20px;
+}
+
+.role-btn {
+    padding: 11px 8px;
+    font-size: 14px;
+}
+
+.login-form {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.90);
+}
+
+.otp-button {
+    padding: 14px 10px;
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+.brand-section h1 {
+    font-size: clamp(36px, 4.5vw, 65px);
+}
+
+.brand-features {
+    margin-top: 20px;
+}
+
+/* Mobile responsive design */
+
+@media (max-width: 1000px) {
+    .auth-container {
+        padding: 25px 20px;
+    }
+
+    .brand-section {
+        align-self: center;
+    }
+
+    .login-card {
+        max-width: 470px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 20px 14px;
+    }
+
+    .login-card {
+        padding: 22px 16px;
+    }
+
+    .login-heading h2 {
+        font-size: 26px;
+    }
+
+    .login-heading p {
+        font-size: 14px;
+    }
+
+    .role-btn {
+        font-size: 12px;
+    }
+}
+
+
+/* =========================
+   OTP VERIFICATION PAGE
+========================= */
+
+.otp-icon {
+    font-size: 45px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.otp-description {
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #333333;
+}
+
+.otp-code-input {
+    width: 100%;
+    padding: 16px 10px;
+
+    background: #f7f6f3;
+    border: 1px solid #d6d3cd;
+    border-radius: 10px;
+
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 12px;
+    text-align: center;
+    color: #173e29;
+
+    outline: none;
+}
+
+.otp-code-input:focus {
+    border-color: #245638;
+    box-shadow: 0 0 0 2px rgba(36, 86, 56, 0.15);
+}
+
+.otp-code-input::placeholder {
+    color: #aaaaaa;
+}
+
+.otp-actions {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+#resend-otp {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: #174e2b;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#resend-otp:disabled {
+    color: #555555;
+    cursor: not-allowed;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+
+    text-decoration: none;
+    color: #173e29;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+#otp-message:not(:empty) {
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+
+    .otp-code-input {
+        font-size: 24px;
+        letter-spacing: 8px;
+    }
+
+    .otp-description {
+        font-size: 14px;
+    }
+
+}
+
+/* Backend validation messages */
+
+.error-message {
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.success-message {
+    color: #166534;
+    background: #dcfce7;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   REGISTRATION PAGE
+========================= */
+
+.signup-card {
+    max-width: 470px;
+    padding: 25px 30px;
+}
+
+.signup-card .login-heading {
+    margin-bottom: 20px;
+}
+
+.signup-card .login-heading h2 {
+    font-size: 30px;
+}
+
+.signup-form {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    min-width: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 7px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+
+    border: 1px solid #d6d3cd;
+    border-radius: 8px;
+
+    background: rgba(247, 246, 243, 0.9);
+
+    color: #262626;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #245638;
+    box-shadow: 0 0 0 2px rgba(36, 86, 56, 0.12);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.verified-phone {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    padding: 12px;
+
+    background: #edf5eb;
+    border: 1px solid #b9d5b5;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.verified-label {
+    color: #218b35;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.signup-form .otp-button {
+    margin-top: 12px;
+}
+
+@media (max-width: 480px) {
+
+    .signup-card {
+        padding: 20px 15px;
+    }
+
+    .signup-card .login-heading h2 {
+        font-size: 25px;
+    }
+
+    .signup-form {
+        padding: 15px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+}
+
+.otp-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
